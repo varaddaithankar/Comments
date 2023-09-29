@@ -1,0 +1,17 @@
+.navbar {
+    border-radius: 0;
+}
+.navbar-header {
+    float: none;
+    width: 200px;
+    margin: auto;
+    position: absolute;
+    left: 0;
+    right: 0;
+    text-align: center;
+    height: 50px;
+}
+.navbar-brand {
+    float: none;
+    line-height: 50px;
+}

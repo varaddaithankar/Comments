@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comments System</title>
+    <!-- <style>
+        .navbar {
+            border-radius: 0;
+        }
+        .navbar-header {
+            float: none;
+            width: 200px;
+            margin: auto;
+            position: absolute;
+            left: 0;
+            right: 0;
+            text-align: center;
+            height: 50px;
+        }
+        .navbar-brand {
+            float: none;
+            line-height: 50px;
+        }
+    </style> -->
+    <style>
+    /* CSS code for improved styling with borders around comments */
+    body {
+        font-family: Arial, sans-serif;
+    }
+
+    .navbar {
+        background-color: #3498db;
+        color: #fff;
+        border-radius: 0;
+    }
+
+    .navbar a.navbar-brand {
+        font-size: 24px;
+    }
+
+    .comment-form {
+        background-color: #f5f5f5;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .comment-list {
+        margin-top: 20px;
+    }
+
+    .comment {
+        background-color: #fff;
+        padding: 10px;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        margin-bottom: 10px;
+        border: 10px solid #ccc !important; /* Added border property */
+    }
+
+    .comment p {
+        margin: 5px 0;
+    }
+
+    .comment .comment-text {
+        font-size: 18px;
+    }
+
+    .comment .like-button {
+        background-color: #3498db;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 5px 10px;
+        cursor: pointer;
+    }
+
+    .comment .like-button:hover {
+        background-color: #2980b9;
+    }
+
+    .comment .reply-input {
+        margin-top: 10px;
+        display: flex;
+    }
+
+    .comment .reply-input input {
+        flex-grow: 1;
+        padding: 5px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    .comment .reply-input button {
+        background-color: #3498db;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 5px 10px;
+        margin-left: 10px;
+        cursor: pointer;
+    }
+
+    .comment .reply-input button:hover {
+        background-color: #2980b9;
+    }
+</style>
+
+
+</head>
+<body>
+    <div id="comment_app" class="container">
+        <div class="navbar navbar-default" >
+            <div class="navbar-header" >
+                <a class="navbar-brand">Comments App</a>
+            </div>
+            <div class="navbar-collapse collapse" >
+                <ul class="navbar-right navbar-nav nav" >
+                    <li>
+                        <a href="#">{{total_comments}} Comments</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div>
+            <div class="row" >
+                <form class="col-sm-4 col-sm-offset-4" v-on:submit.prevent='submit' >
+                    <h3>Comments</h3>
+                    <div class="form-group">
+                        <textarea required="required" placeholder="Your comment" v-model='input' class="form-control" ></textarea>
+                    </div>
+                    <button class="btn btn-info" >Create</button>
+                    <br />
+                    <br />
+                    <legend></legend>
+                </form>
+                <div class="cols-m-12" >
+                    <div class="col-sm-4 col-sm-offset-4" >
+                        <div v-if='total_comments == 0' >
+                            <div class="alert alert-info" >
+                                No Comments till now
+                            </div>
+                        </div>
+                        <div class="list-group" >
+                            <div class="list-group-item" v-for="comment,index in comments" >
+                                <p><strong>Comment: </strong> {{comment.comment}}</p>
+                                <p>
+                                    <strong>Total Likes:</strong>
+                                    {{comment.total_likes}}
+                                </p>
+                                <p>
+                                    <button v-on:click='like(index)' class="btn btn-xs btn-info">Like</button>
+                                </p>
+                                <h5>Replies</h5>
+                                <div class="list-group" >
+                                    <div class="list-group-item" v-for='reply,index in comment.replies' >
+                                        <p>
+                                            <strong>reply:</strong> {{reply.reply}}
+                                        </p>
+                                    </div>
+                                    <div class="list-group-item" style="padding: 0;">
+                                        <form v-on:submit.prevent="addReply(index)">
+                                            <input v-model="replies[index]" placeholder="Enter to reply" class="form-control" />
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- vue js library used -->
+        <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script> 
+        <script>
+            var App = new Vue({
+                el: "#comment_app",
+                data: {
+                    input: "",
+                    reply: "",
+                    total_comments: 0,
+                    comments: [],
+                    replies: []
+                },
+                methods: {
+                    getReplySingleton: function (reply) {
+                        return function () {
+                            return {
+                                reply
+                            };
+                        }
+                    },
+                    getSingleTon: function (comment) {
+                        return function () {
+                            return {
+                                comment, total_likes: 0, replies: []
+                            }
+                        }
+                    },
+                    submit() {
+                        var comment = this.getSingleTon(this.input);
+                        var old = this.comments;
+                        var newc = [...old, comment()];
+                        this.comments = newc;
+                        this.input = "";
+                        this.total_comments = this.comments.length;
+                    },
+                    like(index) {
+                        this.comments[index].total_likes = this.comments[index].total_likes + 1;
+                    },
+                    addReply(index) {
+                        var s = this.getReplySingleton(this.replies[index]); 
+                        var replies = this.comments[index].replies;
+                        var n = [...replies, s()];
+                        this.comments[index].replies = n;
+                        this.replies[index] = ""; 
+}
+                }
+            });
+        </script>
+    </div>
+</body>
+</html>
